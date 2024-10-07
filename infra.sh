@@ -6,14 +6,14 @@ export FAST_PATH=$ROOT_PATH/fast
 export CONFIG_PATH=$FAST_PATH/config/infra
 case "$CMD" in
     up)
-        docker-compose -f infra/docker-compose.yaml pull
-        docker-compose -f infra/docker-compose.yaml up -d --build --remove-orphans
+        docker compose -f infra/docker-compose.yaml pull
+        docker compose -f infra/docker-compose.yaml up -d --build --remove-orphans
         ;;
     down)
-        docker-compose -f infra/docker-compose.yaml down
+        docker compose -f infra/docker-compose.yaml down
         ;;
     restart)
-        docker-compose -f infra/docker-compose.yaml restart
+        docker compose -f infra/docker-compose.yaml restart
         ;;
     *)
         echo "Usage: $0 up|down|restart"
