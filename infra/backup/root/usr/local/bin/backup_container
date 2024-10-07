@@ -1,0 +1,30 @@
+#!/bin/bash
+CONTAINER=$1
+DIR=$2
+RSYNC_EXCLUDES=$3
+CONFIG_PATH=/config
+BACKUP_LOCATION=/root
+
+echo "Backing up $CONTAINER"
+echo "Syncing..."
+docker stop $CONTAINER >> /dev/null
+function start_docker {
+    docker start $CONTAINER >> /dev/null
+}
+# Make sure we start docker if something goes wrong during sync
+trap start_docker EXIT
+
+SOURCE_LOCATION=$CONFIG_PATH/$DIR
+TARGET_LOCATION=$BACKUP_LOCATION/$DIR
+mkdir -p $TARGET_LOCATION
+eval "rsync -a --delete --delete-excluded --exclude=$RSYNC_EXCLUDES $SOURCE_LOCATION/ $TARGET_LOCATION"
+
+docker start $CONTAINER >> /dev/null
+
+BACKUP_FILE="$TARGET_LOCATION.tar.bz2"
+echo "Compressing '$BACKUP_FILE'..."
+tar -cpzf $BACKUP_FILE -C $BACKUP_LOCATION $TARGET_LOCATION
+echo "Uploading..."
+ONE_OR_ZERO=$(expr $(date --utc +%s) / 86400 % 2)
+rclone moveto $BACKUP_FILE backup:/backups/nuc/$ONE_OR_ZERO/$DIR.tar.bz2
+echo "Done!"

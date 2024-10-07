@@ -1,0 +1,12 @@
+50 3 * * * backup_container infra-influxdb-1 infra/influxdb
+55 3 * * * backup_container infra-grafana-1 infra/grafana
+55 3 * * * backup_container infra-portainer-1 infra/portainer
+
+10 4 * * * backup_container tedflix-transmission-1 tedflix/transmission
+10 4 * * * backup_container tedflix-radarr-1 tedflix/radarr '{"MediaCover","Backups","logs","UpdateLogs"}'
+10 4 * * * backup_container tedflix-sonarr-1 tedflix/sonarr '{"MediaCover","Backups","logs","UpdateLogs"}'
+10 4 * * * backup_container tedflix-bazarr-1 tedflix/bazarr '{"log","backup"}'
+10 4 * * * backup_container tedflix-prowlarr-1 tedflix/prowlarr "logs"
+10 4 * * * backup_container tedflix-ombi-1 tedflix/ombi "logs"
+13 4 * * * backup_container tedflix-mariadb-1 tedflix/mariadb
+15 4 * * * backup_container tedflix-plex-1 tedflix/plex '{"Library/Application Support/Plex Media Server/Cache","Library/Application Support/Plex Media Server/Logs","Library/Application Support/Plex Media Server/Metadata","Library/Application Support/Plex Media Server/Media","Library/Application Support/Plex Media Server/Crash Reports"}'

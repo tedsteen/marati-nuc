@@ -1,0 +1,59 @@
+services:
+  marati:
+    build: marati
+    restart: unless-stopped
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.sites_marati.rule=Host(`marati.s3n.io`)'
+      - 'traefik.http.routers.sites_marati.entrypoints=web'
+      - 'traefik.http.services.sites_marati.loadbalancer.server.port=3000'
+      - 'traefik.docker.network=infra_traefik-pub'
+    networks:
+      - infra_traefik-pub
+  
+  public:
+    image: busybox:latest
+    restart: unless-stopped
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.sites_public.rule=Host(`public.marati.s3n.io`) || Host(`smood.s3n.io`)'
+      - 'traefik.http.routers.sites_public.entrypoints=web'
+      - 'traefik.http.services.sites_public.loadbalancer.server.port=3000'
+      - 'traefik.docker.network=infra_traefik-pub'
+    environment:
+      UID: 1001
+      GID: 1001
+    networks:
+      - infra_traefik-pub
+    volumes:
+      - ${CONFIG_PATH}/marati/public:/var/www/
+    command: busybox httpd -f -v -p 3000 -h /var/www
+
+  cors-proxy:
+    image: redocly/cors-anywhere
+    restart: unless-stopped
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.sites_cors-proxy.rule=Host(`cors-proxy.s3n.io`)'
+      - 'traefik.http.routers.sites_cors-proxy.entrypoints=web'
+      - 'traefik.http.services.sites_cors-proxy.loadbalancer.server.port=8080'
+      - 'traefik.docker.network=infra_traefik-pub'
+    networks:
+      - infra_traefik-pub
+  nuc:
+    build: nuc
+    restart: unless-stopped
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.sites_nuc.rule=Host(`nuc.marati.s3n.io`)'
+      - 'traefik.http.routers.sites_nuc.entrypoints=web'
+      - 'traefik.http.services.sites_nuc.loadbalancer.server.port=3000'
+      - 'traefik.docker.network=infra_traefik'
+    networks:
+      - infra_traefik
+
+networks:
+  infra_traefik:
+    external: true
+  infra_traefik-pub:
+    external: true
